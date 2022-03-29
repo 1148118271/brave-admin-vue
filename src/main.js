@@ -10,6 +10,12 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
+import Storage from 'vue-ls'
+const options = {
+  namespace: 'vuejs__', // key prefix
+  name: 'ls', // name variable Vue.[ls] or this.[$ls],
+  storage: 'local' // storage name session, local, memory
+}
 
 import '@/icons' // icon
 import '@/permission' // permission control
@@ -28,11 +34,10 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 Vue.prototype.$msg = ElementUI.Message
+Vue.prototype.$ls = Vue.ls
 
-// set ElementUI lang to EN
-// Vue.use(ElementUI, { locale })
-// 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
+Vue.use(Storage, options)
 
 Vue.config.productionTip = false
 

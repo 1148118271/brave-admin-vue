@@ -1,8 +1,9 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import ElementUI, { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import { getToken, TokenKey } from '@/utils/auth'
 import router from '@/router'
+import Vue from 'vue'
 
 // create an axios instance
 const service = axios.create({
@@ -13,14 +14,7 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
-    // do something before request is sent
-
-    if (store.getters.token) {
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
-      config.headers['X-Token'] = getToken()
-    }
+    config.headers[TokenKey] = Vue.ls.get(TokenKey)
     return config
   },
   error => {
@@ -43,43 +37,15 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    const data = response.data
+    if (data.code === 999) {
+      Vue.ls.clear()
+      ElementUI.Message.error(response.data.msg)
+      return response
+    }
+    const token = response.headers['token']
+    Vue.ls.set(TokenKey, token)
     return response.data
-    // const token = response.headers['token']
-    // if (!token) {
-    //   router.
-    // }
-    // const headers = response.headers
-    // const token = headers.get('token')
-    // if (!token) {
-    //   router.
-    // }
-    // const res = response.data
-    //
-    // // if the custom code is not 20000, it is judged as an error.
-    // if (res.code !== 20000) {
-    //   Message({
-    //     message: res.message || 'Error',
-    //     type: 'error',
-    //     duration: 5 * 1000
-    //   })
-    //
-    //   // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-    //   if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-    //     // to re-login
-    //     MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-    //       confirmButtonText: 'Re-Login',
-    //       cancelButtonText: 'Cancel',
-    //       type: 'warning'
-    //     }).then(() => {
-    //       store.dispatch('user/resetToken').then(() => {
-    //         location.reload()
-    //       })
-    //     })
-    //   }
-    //   return Promise.reject(new Error(res.message || 'Error'))
-    // } else {
-    //   return res
-    // }
   },
   error => {
     console.log('err' + error) // for debug
