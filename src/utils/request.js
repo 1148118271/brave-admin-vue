@@ -1,8 +1,6 @@
 import axios from 'axios'
-import ElementUI, { MessageBox, Message } from 'element-ui'
-import store from '@/store'
-import { getToken, TokenKey } from '@/utils/auth'
-import router from '@/router'
+import ElementUI, { Message } from 'element-ui'
+import { TokenKey } from '@/utils/auth'
 import Vue from 'vue'
 
 // create an axios instance

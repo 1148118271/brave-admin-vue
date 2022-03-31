@@ -10,7 +10,10 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
+import axios from './utils/request'
+
 import Storage from 'vue-ls'
+
 const options = {
   namespace: 'vuejs__', // key prefix
   name: 'ls', // name variable Vue.[ls] or this.[$ls],
@@ -35,6 +38,7 @@ if (process.env.NODE_ENV === 'production') {
 
 Vue.prototype.$msg = ElementUI.Message
 Vue.prototype.$ls = Vue.ls
+Vue.prototype.$http = axios
 
 Vue.use(ElementUI)
 Vue.use(Storage, options)

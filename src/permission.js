@@ -7,8 +7,6 @@ import Vue from 'vue'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login'] // no redirect whitelist
-
 router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
@@ -18,10 +16,8 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = Vue.ls.get(TokenKey)
-  console.log('token', hasToken)
   if (hasToken) {
     if (to.path === '/login') {
-      // if is logged in, redirect to the home page
       next({ path: '/' })
       NProgress.done()
     } else {
@@ -29,14 +25,11 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     }
   } else {
-    /* has no token*/
-
-    if (whiteList.indexOf(to.path) !== -1) {
-      // in the free login whitelist, go directly
-      next()
+    if (to.path !== '/login') {
+      next({ path: '/login' })
+      NProgress.done()
     } else {
-      // other pages that do not have permission to access are redirected to the login page.
-      next(`/login?redirect=${to.path}`)
+      next()
       NProgress.done()
     }
   }
