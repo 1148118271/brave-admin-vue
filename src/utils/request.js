@@ -39,6 +39,7 @@ service.interceptors.response.use(
     if (data.code === 999) {
       Vue.ls.clear()
       Message.error(response.data.msg)
+      location.reload()
       return response
     }
     const token = Vue.ls.get(TokenKey)
