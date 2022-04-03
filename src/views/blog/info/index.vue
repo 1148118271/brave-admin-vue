@@ -1,7 +1,15 @@
 <template>
   <div class="app-container">
   <el-table border :data="tableData">
-    <el-table-column v-for="c in column" :key="c.prop" :prop="c.prop" :label="c.label">
+    <el-table-column v-for="(c, index) in column" :key="index" :prop="c.prop" :label="c.label">
+      <template slot-scope="scope">
+      <span v-if="c.formatter">
+          {{ c.formatter(scope.row[c.prop])}}
+      </span>
+      <span v-else>
+          {{ scope.row[c.prop]}}
+      </span>
+      </template>
     </el-table-column>
     <el-table-column label="操作">
       <template slot-scope="scope">
@@ -15,7 +23,7 @@
       background
       layout="prev, pager, next"
       :total="page.total"
-      @current-change="page.currentPage">
+      :current-change="page.currentPage">
   </el-pagination>
   </div>
 </template>
@@ -41,7 +49,13 @@ export default {
         },
         {
           label: '博客分类',
-          prop: 'label_key'
+          prop: 'label_key',
+          formatter(val) {
+            if (!val) {
+              return '-'
+            }
+            return val.toString()
+          }
         },
         {
           label: '是否发表',
@@ -49,7 +63,13 @@ export default {
         },
         {
           label: '发表时间',
-          prop: 'publish_time'
+          prop: 'publish_time',
+          formatter(val) {
+            if (!val) {
+              return '-'
+            }
+            return val.replace('T', ' ')
+          }
         },
         {
           label: '阅读数',
@@ -61,22 +81,47 @@ export default {
         },
         {
           label: '创建时间',
-          prop: 'address'
+          prop: 'create_time',
+          formatter(val) {
+            if (!val) {
+              return '-'
+            }
+            return val.replace('T', ' ')
+          }
         },
         {
           label: '修改时间',
-          prop: 'address'
+          prop: 'update_time',
+          formatter(val) {
+            if (!val) {
+              return '-'
+            }
+            return val.replace('T', ' ')
+          }
         }
       ],
       tableData: []
     }
   },
+  mounted() {
+    this.selectInfo()
+  },
   methods: {
-    // selectInfo() {
-    //   this.$http.post('/login', this.loginForm).then(data => {
-    //   }).catch(() => {
-    //   })
-    // }
+    selectInfo() {
+      const v = {
+        page_size: this.page.pageSize,
+        current_page: this.currentPage
+      }
+      this.$http.post('/blog/info', v).then(data => {
+        if (data.code === 500) {
+          this.$msg(data.msg)
+          return
+        }
+        this.page = data.data.page
+        this.tableData = data.data.data
+      }).catch(() => {
+      })
+    }
   }
 }
 </script>

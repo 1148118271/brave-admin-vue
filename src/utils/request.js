@@ -1,5 +1,5 @@
 import axios from 'axios'
-import ElementUI, { Message } from 'element-ui'
+import { Message } from 'element-ui'
 import { TokenKey } from '@/utils/auth'
 import Vue from 'vue'
 
@@ -38,11 +38,14 @@ service.interceptors.response.use(
     const data = response.data
     if (data.code === 999) {
       Vue.ls.clear()
-      ElementUI.Message.error(response.data.msg)
+      Message.error(response.data.msg)
       return response
     }
-    const token = response.headers['token']
-    Vue.ls.set(TokenKey, token)
+    const token = Vue.ls.get(TokenKey)
+    if (!token) {
+      const token = response.headers['token']
+      Vue.ls.set(TokenKey, token)
+    }
     return response.data
   },
   error => {
