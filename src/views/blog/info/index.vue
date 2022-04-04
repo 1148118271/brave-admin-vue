@@ -18,7 +18,9 @@
         <template slot-scope="scope">
           <el-link type="primary">编辑</el-link>
           &nbsp;&nbsp;
-          <el-link type="danger">删除</el-link>
+          <el-popconfirm title="是否删除该条数据!"  @onConfirm="deleteInfo(scope.row)">
+            <el-link slot="reference" type="danger" >删除</el-link>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -27,14 +29,17 @@
       background
       layout="prev, pager, next"
       :total="page.total"
-      :current-change="page.currentPage">
+      :current-page="page.currentPage"
+      :page-size="page.pageSize"
+      @current-change="changePage"
+    >
     </el-pagination>
 
-    <el-dialog title="收货地址" :visible.sync="dialogVisible" center width="30%">
-      <Add></Add>
+    <el-dialog title="博客新增" :visible.sync="dialogVisible" center width="30%">
+      <Add ref="add" @close-add="closeAdd"></Add>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="closeAdd">取 消</el-button>
+        <el-button :loading="loading" type="primary" @click="addBlogInfo">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -50,6 +55,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       dialogVisible: false,
       page: {
         total: 100,
@@ -128,10 +134,14 @@ export default {
     this.selectInfo()
   },
   methods: {
+    changePage(currentPage) {
+      this.page.currentPage = currentPage
+      this.selectInfo()
+    },
     selectInfo() {
       const v = {
         page_size: this.page.pageSize,
-        current_page: this.currentPage
+        current_page: this.page.currentPage
       }
       this.$http.post('/blog/info', v).then(data => {
         if (data.code === 500) {
@@ -141,6 +151,29 @@ export default {
         this.$msg.success(data.msg)
         this.page = data.data.page
         this.tableData = data.data.data
+      }).catch(e => {
+        this.$msg.error(e)
+      })
+    },
+
+    closeAdd() {
+      this.$refs.add.clearVal()
+      this.dialogVisible = false
+      this.selectInfo()
+    },
+
+    addBlogInfo() {
+      this.$refs.add.addVal()
+    },
+
+    deleteInfo(v) {
+      this.$http.get('/blog/info/del/' + v.id).then(data => {
+        if (data.code === 500) {
+          this.$msg.error(data.msg)
+          return
+        }
+        this.$msg.success(data.msg)
+        this.selectInfo()
       }).catch(e => {
         this.$msg.error(e)
       })
