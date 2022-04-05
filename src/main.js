@@ -4,6 +4,8 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
 
 import '@/styles/index.scss' // global css
 
@@ -41,6 +43,7 @@ Vue.prototype.$ls = Vue.ls
 Vue.prototype.$http = axios
 
 Vue.use(ElementUI)
+Vue.use(mavonEditor)
 Vue.use(Storage, options)
 
 Vue.config.productionTip = false

@@ -18,6 +18,8 @@
         <template slot-scope="scope">
           <el-link type="primary">编辑</el-link>
           &nbsp;&nbsp;
+          <el-link type="primary" @click="detailsVisible = true">详情</el-link>
+          &nbsp;&nbsp;
           <el-popconfirm title="是否删除该条数据!"  @onConfirm="deleteInfo(scope.row)">
             <el-link slot="reference" type="danger" >删除</el-link>
           </el-popconfirm>
@@ -42,21 +44,36 @@
         <el-button :loading="loading" type="primary" @click="addBlogInfo">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      title="博客详情"
+      :visible.sync="detailsVisible"
+      center
+      width="80%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :before-close="detailsClose"
+    >
+      <add-or-update></add-or-update>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import Add from '@/views/blog/info/add'
+import AddOrUpdate from '@/views/blog/details/addOrUpdate'
 
 export default {
   name: 'Index',
   components: {
-    Add
+    Add,
+    AddOrUpdate
   },
   data() {
     return {
       loading: false,
       dialogVisible: false,
+      detailsVisible: false,
       page: {
         total: 100,
         pageSize: 10,
@@ -176,6 +193,18 @@ export default {
         this.selectInfo()
       }).catch(e => {
         this.$msg.error(e)
+      })
+    },
+    detailsClose(done) {
+      this.$confirm('是否关闭博客详情编辑页面', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+      }).then(() => {
+        return done(true)
+      }).catch(() => {
+        this.$msg.info('放弃关闭页面')
+        return false
       })
     }
   }
