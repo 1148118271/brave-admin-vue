@@ -5,7 +5,7 @@ import Vue from 'vue'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000 // request timeout
 })
 
