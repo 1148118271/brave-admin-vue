@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button plain @click="dialogVisible = true">新增</el-button>
+    <el-button plain @click="blogInfoAddDialog">新增</el-button>
     <br />
     <br />
     <el-table border :data="tableData">
@@ -16,9 +16,9 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-link type="primary">编辑</el-link>
+          <el-link type="primary" @click="blogInfoUpdateDialog(scope.row)">编辑</el-link>
           &nbsp;&nbsp;
-          <el-link type="primary" @click="detailsVisible = true">详情</el-link>
+          <el-link type="primary" @click="postDialog(scope.row.id)">帖子</el-link>
           &nbsp;&nbsp;
           <el-popconfirm title="是否删除该条数据!"  @onConfirm="deleteInfo(scope.row)">
             <el-link slot="reference" type="danger" >删除</el-link>
@@ -27,6 +27,7 @@
       </el-table-column>
     </el-table>
     <div style="text-align: center; margin-top: 30px;"></div>
+
     <el-pagination
       background
       layout="prev, pager, next"
@@ -37,43 +38,45 @@
     >
     </el-pagination>
 
-    <el-dialog title="博客新增" :visible.sync="dialogVisible" center width="30%">
-      <Add ref="add" @close-add="closeAdd"></Add>
+    <el-dialog title="博客新增或者修改" :visible.sync="dialogVisible" v-if="dialogVisible" center width="30%">
+      <blog-add-or-update ref="blogAddOrUpdate" :blog-info-id="id" @close-add="closeBlogInfoDialog"></blog-add-or-update>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="closeAdd">取 消</el-button>
-        <el-button :loading="loading" type="primary" @click="addBlogInfo">确 定</el-button>
+        <el-button @click="closeBlogInfoDialog">取 消</el-button>
+        <el-button :loading="loading" type="primary" @click="addOrUpdateBlogInfo">确 定</el-button>
       </div>
     </el-dialog>
 
     <el-dialog
-      title="博客详情"
-      :visible.sync="detailsVisible"
+      title="帖子"
+      :visible.sync="postVisible"
+      v-if="postVisible"
       center
       width="80%"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-      :before-close="detailsClose"
+      :before-close="postCloseDialog"
     >
-      <add-or-update></add-or-update>
+      <post-add-or-update :blog-info-id="blogInfoId"></post-add-or-update>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import Add from '@/views/blog/info/add'
-import AddOrUpdate from '@/views/blog/details/addOrUpdate'
+import BlogAddOrUpdate from '@/views/blog/info/addOrUpdate'
+import PostAddOrUpdate from '@/views/blog/post/addOrUpdate'
 
 export default {
   name: 'Index',
   components: {
-    Add,
-    AddOrUpdate
+    BlogAddOrUpdate,
+    PostAddOrUpdate
   },
   data() {
     return {
       loading: false,
       dialogVisible: false,
-      detailsVisible: false,
+      postVisible: false,
+      blogInfoId: null,
       page: {
         total: 100,
         pageSize: 10,
@@ -144,17 +147,20 @@ export default {
           }
         }
       ],
-      tableData: []
+      tableData: [],
+      id: null
     }
   },
   mounted() {
     this.selectInfo()
   },
   methods: {
+    // 分页改变
     changePage(currentPage) {
       this.page.currentPage = currentPage
       this.selectInfo()
     },
+    // 查询博客信息列表
     selectInfo() {
       const v = {
         page_size: this.page.pageSize,
@@ -172,17 +178,30 @@ export default {
         this.$msg.error(e)
       })
     },
-
-    closeAdd() {
-      this.$refs.add.clearVal()
+    // 关闭博客信息修改或新增Dialog
+    closeBlogInfoDialog() {
       this.dialogVisible = false
       this.selectInfo()
     },
-
-    addBlogInfo() {
-      this.$refs.add.addVal()
+    // 打开博客信息修改Dialog
+    blogInfoUpdateDialog(row) {
+      this.id = row.id
+      this.dialogVisible = true
     },
-
+    // 打开博客信息新增Dialog
+    blogInfoAddDialog() {
+      this.id = null
+      this.dialogVisible = true
+    },
+    // 博客信息新增或修改
+    addOrUpdateBlogInfo() {
+      if (this.id) {
+        this.$refs.blogAddOrUpdate.editVal()
+      } else {
+        this.$refs.blogAddOrUpdate.addVal()
+      }
+    },
+    // 删除博客信息
     deleteInfo(v) {
       this.$http.get('/blog/info/del/' + v.id).then(data => {
         if (data.code === 500) {
@@ -195,17 +214,24 @@ export default {
         this.$msg.error(e)
       })
     },
-    detailsClose(done) {
-      this.$confirm('是否关闭博客详情编辑页面', '确认信息', {
+    // 关闭帖子编辑页面Dialog
+    postCloseDialog(done) {
+      this.$confirm('是否关闭帖子编辑页面', '确认信息', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确认',
         cancelButtonText: '取消'
       }).then(() => {
+        this.postVisible = false
         return done(true)
       }).catch(() => {
         this.$msg.info('放弃关闭页面')
         return false
       })
+    },
+    // 打开帖子Dialog
+    postDialog(id) {
+      this.blogInfoId = id
+      this.postVisible = true
     }
   }
 }

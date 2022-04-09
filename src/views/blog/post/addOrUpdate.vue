@@ -13,17 +13,51 @@
 
 <script>
 export default {
-  name: 'AddOrUpdate',
-  data() {
-    return {
-      value: ''
+  name: 'PostAddOrUpdate',
+  props: {
+    blogInfoId: {
+      type: Number,
+      default: null
     }
   },
-
+  data() {
+    return {
+      value: '',
+      blogPost: {}
+    }
+  },
+  mounted() {
+    this.getByInfoId()
+  },
   methods: {
+    getByInfoId() {
+      this.$http.get('/blog/post/get/' + this.blogInfoId).then(data => {
+        if (data.code === 500) {
+          this.$msg.error(data.msg)
+          return
+        }
+        if (data.data) {
+          this.blogPost = data.data
+          this.value = data.data.post_text
+        }
+      }).catch(e => {
+        this.$msg.error(e)
+      })
+    },
+
     save(value, render) {
-      console.info('value', value)
-      console.info('html', render)
+      this.blogPost.post_text = value
+      this.blogPost.post_html = render
+      this.blogPost.blog_info_id = this.blogInfoId
+      this.$http.post('/blog/post/addOrUpdate', this.blogPost).then(data => {
+        if (data.code === 500) {
+          this.$msg.error(data.msg)
+          return
+        }
+        this.$msg.success(data.msg)
+      }).catch(e => {
+        this.$msg.error(e)
+      })
     },
 
     $imgAdd(index, $file) {
