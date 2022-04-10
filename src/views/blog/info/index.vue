@@ -18,7 +18,11 @@
         <template slot-scope="scope">
           <el-link type="primary" @click="blogInfoUpdateDialog(scope.row)">编辑</el-link>
           &nbsp;&nbsp;
-          <el-link type="primary" @click="postDialog(scope.row.id)">帖子</el-link>
+          <el-link type="warning" @click="postDialog(scope.row.id)">帖子</el-link>
+          &nbsp;&nbsp;
+          <el-popconfirm title="是否发布帖子!"  @onConfirm="publishPost(scope.row.id)">
+            <el-link slot="reference" type="success" >发布</el-link>
+          </el-popconfirm>
           &nbsp;&nbsp;
           <el-popconfirm title="是否删除该条数据!"  @onConfirm="deleteInfo(scope.row)">
             <el-link slot="reference" type="danger" >删除</el-link>
@@ -209,7 +213,20 @@ export default {
           return
         }
         this.$msg.success(data.msg)
+        this.deletePost(v.id)
         this.selectInfo()
+      }).catch(e => {
+        this.$msg.error(e)
+      })
+    },
+    // 删除帖子信息
+    deletePost(blogInfoId) {
+      this.$http.get('/blog/post/del/' + blogInfoId).then(data => {
+        if (data.code === 500) {
+          this.$msg.error(data.msg)
+          return
+        }
+        this.$msg.success(data.msg)
       }).catch(e => {
         this.$msg.error(e)
       })
@@ -232,6 +249,19 @@ export default {
     postDialog(id) {
       this.blogInfoId = id
       this.postVisible = true
+    },
+    // 发布帖子
+    publishPost(id) {
+      this.$http.get('/blog/post/publish/' + id).then(data => {
+        if (data.code === 500) {
+          this.$msg.error(data.msg)
+          return
+        }
+        this.$msg.success(data.msg)
+        this.selectInfo()
+      }).catch(e => {
+        this.$msg.error(e)
+      })
     }
   }
 }
