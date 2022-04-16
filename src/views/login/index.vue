@@ -105,7 +105,6 @@ export default {
         if (valid) {
           this.loading = true
           this.$http.post('/login', this.loginForm).then(data => {
-            console.log(data)
             if (data.code === 200) {
               this.$router.push({ path: this.redirect || '/' })
             } else {

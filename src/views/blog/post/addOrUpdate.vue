@@ -22,7 +22,7 @@ export default {
   },
   data() {
     return {
-      value: '',
+      value: null,
       blogPost: {}
     }
   },
@@ -68,14 +68,14 @@ export default {
           this.$msg.error(data.msg)
           return
         }
-        this.$refs.md.$img2Url(index, process.env.VUE_APP_BASE_API + '/' + data.data)
+        this.$refs.md.$img2Url(index, process.env.VUE_APP_FILE_URL + data.data)
       }).catch(e => {
         this.$msg.error(e)
       })
     },
 
     $imgDel($file) {
-      const rFile = $file[0].replace(process.env.VUE_APP_BASE_API + '/', '')
+      const rFile = $file[0].replace(process.env.VUE_APP_FILE_URL, '')
       const json = {
         file_path: rFile
       }
