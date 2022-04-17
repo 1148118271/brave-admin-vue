@@ -82,7 +82,7 @@ export default {
       postVisible: false,
       blogInfoId: null,
       page: {
-        total: 100,
+        total: 0,
         pageSize: 10,
         currentPage: 1
       },
