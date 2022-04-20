@@ -73,6 +73,12 @@ export const constantRoutes = [
         name: 'Label',
         component: () => import('@/views/blog/label/list'),
         meta: { title: '标签信息', icon: 'tree' }
+      },
+      {
+        path: 'links',
+        name: 'Links',
+        component: () => import('@/views/blog/links/list'),
+        meta: { title: '友链信息', icon: 'tree' }
       }
     ]
   },
