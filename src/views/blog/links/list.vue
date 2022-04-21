@@ -10,7 +10,7 @@
             {{c.formatter(scope.row[c.prop])}}
           </span>
           <span v-else-if="c.html">
-            <div v-html="c.html(scope.row[c.prop])">scope.row[c.prop]</div>
+            <div v-html="c.html(scope.row[c.prop])"></div>
           </span>
           <span v-else>
             {{scope.row[c.prop]}}
