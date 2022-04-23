@@ -9,6 +9,9 @@
           <span v-if="c.formatter">
             {{c.formatter(scope.row[c.prop])}}
           </span>
+          <span v-else-if="c.html">
+            <div v-html="c.html(scope.row)"></div>
+          </span>
           <span v-else>
             {{scope.row[c.prop]}}
           </span>
@@ -27,6 +30,8 @@
           <el-popconfirm title="是否删除该条数据!"  @onConfirm="deleteInfo(scope.row)">
             <el-link slot="reference" type="danger" >删除</el-link>
           </el-popconfirm>
+          &nbsp;&nbsp;
+          <el-link slot="reference" type="danger" @click="comments(scope.row.id)">查看评论</el-link>
         </template>
       </el-table-column>
     </el-table>
@@ -62,21 +67,29 @@
     >
       <post-add-or-update :blog-info-id="blogInfoId"></post-add-or-update>
     </el-dialog>
+
+    <el-dialog title="评论" :visible.sync="commentsVisible" v-if="commentsVisible" center width="30%">
+      <comments :blog-id="blogInfoId"></comments>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import BlogAddOrUpdate from '@/views/blog/info/addOrUpdate'
 import PostAddOrUpdate from '@/views/blog/post/addOrUpdate'
+import Comments from '@/views/blog/comments/index'
 
 export default {
   name: 'Index',
   components: {
     BlogAddOrUpdate,
-    PostAddOrUpdate
+    PostAddOrUpdate,
+    Comments
   },
   data() {
     return {
+      commentsVisible: false,
       loading: false,
       dialogVisible: false,
       postVisible: false,
@@ -262,6 +275,11 @@ export default {
       }).catch(e => {
         this.$msg.error(e)
       })
+    },
+    // 打开评论列表
+    comments(id) {
+      this.blogInfoId = id
+      this.commentsVisible = true
     }
   }
 }
